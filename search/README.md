@@ -59,3 +59,5 @@ Node* deleteMin(Node* node)
     return node;
 }
 ```
+
+## 2 红黑树
