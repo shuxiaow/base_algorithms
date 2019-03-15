@@ -1,0 +1,4 @@
+*.o
+core
+*test
+.ycm_extra_conf.py
