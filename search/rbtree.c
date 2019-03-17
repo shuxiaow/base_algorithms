@@ -106,7 +106,6 @@ void rbtree_inorder_traversal(rbtree_t* rbt)
 rbt_node* __rbtree_new_node(int key, char* value)
 {
     rbt_node* node = (rbt_node*)malloc(sizeof(rbt_node));
-    node->parent = NULL;
     node->color = RBT_RED;
     node->key = key;
     node->value = value;
@@ -145,10 +144,8 @@ rbt_node* __rbtree_rotate_left(rbt_node* node)
     node->right = right->left;
     right->left = node;
     right->color = node->color;
-    right->parent = node->parent;
     right->size = node->size;
     node->color = RBT_RED;
-    node->parent = right;
     node->size = __rbtree_size(node->left) + __rbtree_size(node->right) + 1;
     return right;
 }
@@ -159,10 +156,8 @@ rbt_node* __rbtree_rotate_right(rbt_node* node)
     node->left = left->right;
     left->right = node;
     left->color = node->color;
-    left->parent = node->parent;
     left->size = node->size;
     node->color = left->color;
-    node->parent = left;
     node->size = __rbtree_size(node->left) + __rbtree_size(node->right) + 1;
     return left;
 }
@@ -180,12 +175,8 @@ rbt_node* __rbtree_put(rbt_node* node, int key, char* value)
 
     if(node->key > key) {
         node->left = __rbtree_put(node->left, key, value);
-        if(node->left->parent == NULL)
-            node->left->parent = node;
     } else {
         node->right = __rbtree_put(node->right, key, value);
-        if(node->right->parent == NULL)
-            node->right->parent = node;
     }
 
     if(__rbtree_is_red(node->left) && __rbtree_is_red(node->left->right)) {

@@ -9,7 +9,6 @@ typedef enum rbt_color {
 
 typedef struct rbt_node {
     rbt_color color;
-    struct rbt_node* parent;
     struct rbt_node* left;
     struct rbt_node* right;
     int key;
