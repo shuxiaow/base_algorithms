@@ -79,22 +79,27 @@ rbt_node* __rbtree_put(rbt_node* node, int key, char* value)
 
 **Case 2:** 往4-节点中插入key
 
-![rbtree_insert_4node](https://raw.githubusercontent.com/shuxiaow/pictures/master/base_algos/rbtree_insert_4node.png)
-
 4-节点只有一种形式，但是插入的x的位置可能有4种：a左，a右，c左，c右。
 
 在上节的算法描述中，我们说到，要把4-节点拆分成2个2-节点并把中位key上移到父节点中。这个听起来很复杂的操作，其实在红黑树中很好实现：只需要把b的颜色变成红色，a和c的颜色变成黑色，即可。
 
 完成颜色翻转后，4种情况下`x`的父节点都是黑色了，都不需要额外处理了。
 
+![rbtree_insert_4node](https://raw.githubusercontent.com/shuxiaow/pictures/master/base_algos/rbtree_insert_4node.png)
+
 回到我们刚刚说的为什么要调整红黑树的问题上，这里我们把原来是黑节点的`b`，变成了红色，所以对于b的父节点，它就需要相同的调整过程，因为它的父节点有可能是2-节点，3节点或者4-节点。
 
 **代码实现**
 
-```c
-    /* 先处理新的红色节点的父节点在左边的问题 */
+以下就是上面描述的算法的具体实现了，对照着图示阅读代码效果更佳。
 
-    /* 先处理新的红节点在右边的情况，如果是4-节点，直接翻转颜色；如果是3-节点，先对它的父节点左旋 */
+```c
+    /* 我们在node为新的红色节点的爷爷节点上处理 */
+
+    /* 先处理新的红色节点在node->left上*/
+
+    /* 先处理新的红节点在node->left->right的情况，如果(node,node->left,node->right)是4-节点，
+       直接翻转颜色；如果是3-节点，先对node->left左旋，使红节点变成在node->left->left */
     if(__rbtree_is_red(node->left) && __rbtree_is_red(node->left->right)) {
         if(__rbtree_is_red(node->right)) {
             __rbtree_flip_colors(node);
@@ -103,7 +108,8 @@ rbt_node* __rbtree_put(rbt_node* node, int key, char* value)
         }
     }
 
-    /* 现在处理新的红节点在左边的情况，如果是4-节点，直接翻转颜色；如果是3-节点，直接对
+    /* 再处理新的红节点在node->left->left的情况，如果(node,node->left,node->right)是4-节点，
+       直接翻转颜色；如果是3-节点，对node进行右旋*/
     if(__rbtree_is_red(node->left) && __rbtree_is_red(node->left->left)) {
         if(__rbtree_is_red(node->right)) {
             __rbtree_flip_colors(node);
@@ -112,5 +118,20 @@ rbt_node* __rbtree_put(rbt_node* node, int key, char* value)
         }
     }
 
-
+    /* 再处理新的红色节点在node->right上。将上面的2个if中的left换成right，right换成left即可 */
 ```
+
+实现了内部函数`__rbtree_put`后，我们对根节点调用该函数即可。
+
+```c
+int rbtree_put(rbtree_t* rbt, int key, char* value)
+{
+    rbt->root = __rbtree_put(rbt->root, key, value);
+    rbt->root->color = RBT_BLACK;
+    return 0;
+}
+```
+
+如果根节点本身就是4-节点（`root`为黑，`root->left`和`root->right`为红），那么最终会分解成2-节点，此时在算法中`root->left`和`root->right`变成黑色，`root`变成红色。由于根节点没有父节点去处理它，所以我们直接把根节点重置为黑色即可。
+
+关于红黑树的插入算法，就写到这里了。删除操作请参考[红黑树上的删除操作](./rbtree_delete.md)

@@ -104,5 +104,4 @@ Node* deleteMin(Node* node)
 
 ### 删除
 
-详见[红黑树中删除操作](doc/rbtree_delete.md)
-### 删除
+详见[红黑树中的删除操作](doc/rbtree_delete.md)
